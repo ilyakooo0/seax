@@ -5,7 +5,9 @@
   +$  word  @t
   +$  number-of-hits  @u
   +$  number-of-hits-mop  ((mop number-of-hits (set url)) gth)
-  +$  search-index  (map word number-of-hits-mop)
+  +$  rwi  (map word number-of-hits-mop)
+  +$  word-index  (map url (map word @u))
+  +$  search-index  [rwi=rwi wi=word-index]
   +$  state-0
     $:
       rwi=search-index
@@ -15,6 +17,7 @@
     $%
       [%start-crawl url=url]
       [%crawl-next ~]
+      [%search @t]
     ==
   ++  urls-per-hits
     ((on number-of-hits (set url)) gth)
@@ -29,14 +32,19 @@
   ++  second
     |*  [a=* b=*]
     b
-  ++  add-index
+  ++  add-to-index
     |=  [index=search-index new-words=(map word number-of-hits) =url]
-    %-  second
-    ^-  [(list ~) search-index]
-    %^  spin  ~(tap by new-words)  index
-    |=  [[=word =number-of-hits] index=search-index]
-    :-  ~
     ^-  search-index
+    :-  (add-to-rwi rwi.index new-words url)
+    %+  ~(put by wi.index)  url  new-words
+  ++  add-to-rwi
+    |=  [index=rwi new-words=(map word number-of-hits) =url]
+    %-  second
+    ^-  [(list ~) rwi]
+    %^  spin  ~(tap by new-words)  index
+    |=  [[=word =number-of-hits] index=rwi]
+    :-  ~
+    ^-  rwi
     =/  existing-number-of-hits  (~(get by index) word)
     ?~  existing-number-of-hits
       %+  ~(put by index)  word  
@@ -60,6 +68,8 @@
 %-  agent:dbug
 |_  =bowl:gall
 +*  this  .
+    next-crawl-card
+      [%pass / %agent [our.bowl %seax] %poke [%noun !>((poke [%crawl-next ~]))]]
 ++  on-init   `..on-init
 ++  on-save   !>(state)
 ++  on-load   
@@ -83,17 +93,42 @@
       ::
         %crawl-next
       ?~  to-crawl.state  `this
+      =/  url  url.i.to-crawl.state
+      ?:  (~(has by wi.rwi.state) url)  [~[next-crawl-card] this(to-crawl.state t.to-crawl.state)]
       =/  req
         ^-  task:iris
-        [%request [%'GET' url.i.to-crawl.state ~ ~] *outbound-config:iris]
+        [%request [%'GET' url ~ ~] *outbound-config:iris]
       :_  this(to-crawl.state t.to-crawl.state)
       ~[[%pass ~[%crawl-page (scot %ud depth.i.to-crawl.state) url.i.to-crawl.state] %arvo %i req]]
+      ::
+        %search
+      =/  query  
+        ^-  (list tape)
+        (turn (words (trip +.poke)) normalize-word)
+      =/  top-results  
+        ^-  (list cord)
+        %-  zing
+        ^-  (list (list cord))
+        %-  zing
+        ^-  (list (list (list cord)))
+        %+  turn  query
+        |=  word=tape
+        =/  results  (~(get by rwi.rwi.state) (crip word))
+        ?~  results  ~
+        %+  turn  (tap:urls-per-hits +.results)
+        |=  [* set=(set cord)]
+        ~(tap in set)
+
+      ~&  top-results
+      `this
       ==
   
   ==
 ++  on-watch  |=(path !!)
 ++  on-leave  |=(path `..on-init)
-++  on-peek   |=(path ~)
+++  on-peek   
+  |=  path
+  ~
 ++  on-agent  |=([wire sign:agent:gall] !!)
 ++  on-arvo
   |=  [=wire =sign-arvo] 
@@ -127,7 +162,7 @@
     |=  [lhs=(map cord @u) rhs=(map cord @u)]
     %-  %-  ~(uno by lhs)  rhs
     |=  [* a=@u b=@u]  (add a b)
-  =/  index  (add-index rwi.state word-index url)
+  =/  index  (add-to-index rwi.state word-index url)
   =/  links=(list tape)  (extract-links p.purl response-body)
   =/  next-depth  (dec depth)
   =/  to-crawl
@@ -137,7 +172,7 @@
       %+  turn  links
       |=  link=tape  [(crip link) next-depth]
   :_  this(to-crawl.state to-crawl, rwi.state index)
-  ~[[%pass / %agent [our.bowl %seax] %poke [%noun !>((poke [%crawl-next ~]))]]]
+  ~[next-crawl-card]
   ==
 ++  on-fail   |=([term tang] `..on-init)
 --

@@ -1,7 +1,9 @@
 =<
 |=  haystack=tape
 ^-  (list tape)
-(scan haystack apex)
+%+  fall
+(rust haystack apex)
+~
 ::
 |%
 ++  apex

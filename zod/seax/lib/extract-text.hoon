@@ -8,6 +8,7 @@
 =/  parse-result
   ^-  (unit (list tape))
   %+  rust  processed-html  apex
+?~  parse-result  ~
 =/  fragments  (skip ((list tape) +.parse-result) is-all-whitespace)
 `(zing (join " " fragments))
 |%
