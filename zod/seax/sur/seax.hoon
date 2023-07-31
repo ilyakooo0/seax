@@ -8,7 +8,7 @@
   $_  ^|
   |%
   ++  url  |~  tape  *tape
-  ++  results  |~  mime-data:iris  *(list search-result)
+  ++  results  |~  mime-data:iris  *(unit (list search-result))
   --
-+$  engines  (list [=engine weight=@rs])
++$  engines  (map name=term [=engine weight=@rs])
 --

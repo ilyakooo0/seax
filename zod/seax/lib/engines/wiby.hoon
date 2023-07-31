@@ -11,18 +11,18 @@
   (en-urlt:html query)
 ++  results
   |=  response=mime-data:iris
-  ^-  (list search-result)
+  ^-  (unit (list search-result))
   =/  body  q.data.response
-  =/  jon  (need (de:json:html body))
+  ;<  jon=json  _biff  (de:json:html body)
   (apex jon)
 --
 ::
 |%
 ++  apex
-  =,  dejs:format
+  =,  dejs-soft:format
   (ar parse-search-result)
 ++  parse-search-result
-  =,  dejs:format
+  =,  dejs-soft:format
   %-  ot
   ~[[%'Title' so] [%'URL' so]]
 --
