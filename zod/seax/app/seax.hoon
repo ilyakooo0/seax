@@ -50,8 +50,7 @@ $:
   search-results.search-state
 =*  sink
   |=  =query
-  ((sink:^sink ~[%search query]) (search-results query))
-:: =/  sinks  *(map query _(sink ''))
+  ((sink:^sink ~[~[%search query]]) (search-results query))
 
 ^-  agent:gall
 %-  agent:dbug
@@ -82,7 +81,7 @@ $:
     =.  search-subscriptions.state
       (~(put by search-subscriptions.state) query [1 ~])
     =/  cards  (search-cards query)
-    [cards this]
+    [[flush:(sink query) cards] this]
   =/  subscription=search-state  +.subscription
   =.  subscription
     [+(number-of-subscriptions.subscription) search-results.subscription]
@@ -94,7 +93,6 @@ $:
 :: This was not tested because it requires waiting 12 hours.
 ++  on-leave
   |=  =path
-  ~&  path
   ?+  path  !!
     [%search query ~]
     =/  query  +<.path
@@ -120,6 +118,7 @@ $:
     [%search-result query=@t engine=term ~]
   ?>  ?=([%iris %http-response %finished *] sign-arvo)
   =/  query=@t  +<.wire
+  =/  sink  (sink query)
   =/  engine-name=term  +>-.wire
   =/  [=engine *]  (~(got by engines) engine-name)
   =/  search-subscription  (~(got by search-subscriptions.state) query)
@@ -131,7 +130,8 @@ $:
     (~(put by search-results.search-subscription) engine-name results)
   =.  search-subscriptions.state
     (~(put by search-subscriptions.state) query search-subscription)  
-  `this
+  =^  card  sink  (sync:sink (search-results query))
+  [~[card] this]
   ==
 ++  on-fail   |=([term tang] `..on-init)
 --

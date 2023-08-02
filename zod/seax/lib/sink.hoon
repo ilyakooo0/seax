@@ -21,6 +21,6 @@
   ++  paths  pats
   ++  flush
     ^-  card:agent:gall
-    [%give %fact pats %noun !>(^-((clog) [%flush stat]))]
+    [%give %fact ~ %noun !>(^-((clog) [%flush stat]))]
   --
 --

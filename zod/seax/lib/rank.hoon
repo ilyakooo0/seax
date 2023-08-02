@@ -42,22 +42,21 @@
     ^-  @rs
     %+  roll  engine-weights
     |=  [a=_.1 b=_.1]
-    (mul.rs a b)
+    (mul:rs a b)
   =/  position-weights
     ^-  @rs
-    %+  mul.rs  (lent ords)
+    %+  mul:rs  (sun:rs (lent ords))
     %+  roll
-    (turn ords |=(ord=@u (div.rs 1 (sun:rs ord))))
+    (turn ords |=(ord=@u (div:rs .1 (sun:rs ord))))
     add
   =/  rank
     ^-  @rs
-    (mul.rs engine-weights position-weights)
+    (mul:rs engine-weights position-weights)
   [ord=rank result=result]
 =/  sorted-results
   %+  sort  ranking
   |=  [[lhs=@rs *] [rhs=@rs *]]
   %+  gth  lhs  rhs
-~&  sorted-results
 %+  turn  sorted-results
 |=  [* result=search-result]
 result
