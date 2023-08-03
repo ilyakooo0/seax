@@ -6,6 +6,22 @@
     <style>
       body {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        margin: 0;
+      }
+      @keyframes bobbing {
+        from {
+          transform: translateY(-30px);
+        }
+        to {
+          transform: traslateY(0);
+        }
+      }
+      .bobbing {
+        animation-duration: 2s;
+        animation-name: bobbing;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-timing-function: ease-in-out;
       }
     </style>
   </head>

@@ -42,15 +42,29 @@ $:
 --
 
 =/  state  *state-0
+=*  current-engines
+  |=  =query
+  ^-  (list [term ?(%loading %failed %completed)])
+  %+  turn  ~(tap in ~(key by engines))
+  |=  engine=term
+  :-  engine
+  =/  results
+    (~(get by search-results:(~(got by search-subscriptions.state) query)) engine)
+  ?~  results  %loading
+  ?~  +.results  %failed
+  %completed
 =*  search-results
   |=  =query
   %-  rank-results
   =/  search-state=search-state
     (~(got by search-subscriptions.state) query)
   search-results.search-state
+=*  sink-for-query
+  |=  =query
+  [(current-engines query) (search-results query)]
 =*  sink
   |=  =query
-  ((sink:^sink ~[~[%search query]]) (search-results query))
+  ((sink:^sink ~[~[%search query]]) (sink-for-query query))
 
 ^-  agent:gall
 %-  agent:dbug
@@ -130,7 +144,7 @@ $:
     (~(put by search-results.search-subscription) engine-name results)
   =.  search-subscriptions.state
     (~(put by search-subscriptions.state) query search-subscription)  
-  =^  card  sink  (sync:sink (search-results query))
+  =^  card  sink  (sync:sink (sink-for-query query))
   [~[card] this]
   ==
 ++  on-fail   |=([term tang] `..on-init)

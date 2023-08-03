@@ -3,7 +3,7 @@
 
 =<
 |=  results=(list [engine=term results=(list search-result)])
-^-  (list search-result)
+^-  (list [engines=(list term) =search-result])
 =/  url-to-engine-map
   ^-  (list (map @t [engines=(list term) ords=(list @u) result=search-result]))
   %-  zing
@@ -29,7 +29,7 @@
     ==
   [(weld engines-lhs engines-rhs) (weld ords-lhs ords-rhs) result]
 =/  ranking
-  ^-  (list [ord=@rs result=search-result])
+  ^-  (list [ord=@rs result=[engines=(list term) =search-result]])
   %+  turn  ~(val by url-to-engines-map)
   |=  [engines=(list term) ords=(list @u) result=search-result]
   =/  engine-weights
@@ -52,13 +52,13 @@
   =/  rank
     ^-  @rs
     (mul:rs engine-weights position-weights)
-  [ord=rank result=result]
+  [ord=rank result=[engines result]]
 =/  sorted-results
   %+  sort  ranking
   |=  [[lhs=@rs *] [rhs=@rs *]]
   %+  gth  lhs  rhs
 %+  turn  sorted-results
-|=  [* result=search-result]
+|=  [* result=[(list term) search-result]]
 result
 
 |%
