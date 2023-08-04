@@ -93,7 +93,28 @@ main =
                 |> Ur.Cmd.cmd
             )
         , update = update
-        , view = \model -> { title = "%seax", body = [ view model |> layout [] ] }
+        , view =
+            \model ->
+                { title = "%seax"
+                , body =
+                    [ view model
+                        |> layout
+                            [ Font.family
+                                [ Font.typeface "system-ui"
+                                , Font.typeface "-apple-system"
+                                , Font.typeface "BlinkMacSystemFont"
+                                , Font.typeface "Segoe UI"
+                                , Font.typeface "Roboto"
+                                , Font.typeface "Helvetica"
+                                , Font.typeface "Arial"
+                                , Font.sansSerif
+                                , Font.typeface "Apple Color Emoji"
+                                , Font.typeface "Segoe UI Emoji"
+                                , Font.typeface "Segoe UI Symbol"
+                                ]
+                            ]
+                    ]
+                }
         , subscriptions = \model -> Animator.toSubscription Tick model (animator model)
         , createEventSource = createEventSource
         , urbitSubscriptions =
