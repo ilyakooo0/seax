@@ -9,9 +9,9 @@
   %-  zing
   %+  turn  results
   |=  [engine=term results=(list search-result)]
-  %+  turn  (zip (gulf 1 (lent results)) results)
+  %+  turn  (zip (gulf 0 (lent results)) results)
   |=  [ord=@u result=search-result]
-  %-  malt  ~[[url.result [~[engine] ~[ord] result]]]
+  %-  malt  ~[[url.result [~[engine] ~[+(ord)] result]]]
 =/  url-to-engines-map
   ^-  (map @t [engines=(list term) ords=(list @u) result=search-result])
   %+  roll  url-to-engine-map

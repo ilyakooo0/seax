@@ -15,12 +15,17 @@
           transform: traslateY(0);
         }
       }
+
       .bobbing {
         animation-duration: 2s;
         animation-name: bobbing;
         animation-iteration-count: infinite;
         animation-direction: alternate;
         animation-timing-function: ease-in-out;
+      }
+      
+      .hidden-engine {
+        transition: max-width 1s ease-out, top 1s ease-out, margin-left 1s ease-out;
       }
     </style>
   </head>

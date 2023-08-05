@@ -52,6 +52,7 @@ $:
     (~(get by search-results:(~(got by search-subscriptions.state) query)) engine)
   ?~  results  %loading
   ?~  +.results  %failed
+  ?~  +.+.results  %failed
   %completed
 =*  search-results
   |=  =query
@@ -61,6 +62,7 @@ $:
   search-results.search-state
 =*  sink-for-query
   |=  =query
+  ~&  (~(get by search-subscriptions.state) query)
   [(current-engines query) (search-results query)]
 =*  sink
   |=  =query
@@ -145,8 +147,11 @@ $:
   =.  search-subscriptions.state
     (~(put by search-subscriptions.state) query search-subscription)  
   =^  card  sink  (sync:sink (sink-for-query query))
+  ~&  (current-engines query)
   [~[card] this]
   ==
-++  on-fail   |=([term tang] `..on-init)
+++  on-fail
+  |=  [term =tang] 
+  ((slog tang) `this)
 --
 

@@ -199,13 +199,17 @@ view model =
                 [ row [ spacing 16, width fill ]
                     [ searchView model |> el [ padding 8 ]
                     , model.engines
-                        |> List.filter (\( _, state ) -> state /= Failed)
                         |> List.map
                             (\( name, state ) ->
-                                text ("%" ++ name)
+                                ( name
+                                , text ("%" ++ name)
                                     |> el
                                         ([ Font.size 43
                                          , Font.bold
+                                         , Html.Attributes.style "max-width" "300px"
+                                            |> htmlAttribute
+
+                                         -- , clip
                                          ]
                                             ++ (if Set.isEmpty model.selectedEngines then
                                                     []
@@ -232,11 +236,20 @@ view model =
                                                         ]
 
                                                     Failed ->
-                                                        []
+                                                        [ Html.Attributes.class "hidden-engine" |> htmlAttribute
+                                                        , Html.Attributes.style "max-width" "0px" |> htmlAttribute
+                                                        , Html.Attributes.style "top" "-100px"
+                                                            |> htmlAttribute
+                                                        , Html.Attributes.style "margin" "0"
+                                                            |> htmlAttribute
+                                                        , Font.color (rgb 0.8 0.8 0.8)
+                                                        , Html.Attributes.class "bobbing" |> htmlAttribute
+                                                        ]
                                                )
                                         )
+                                )
                             )
-                        |> row
+                        |> Keyed.row
                             [ spacing 16
                             , clipX
                             , scrollbarX
