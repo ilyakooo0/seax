@@ -11,10 +11,16 @@ $:
 +$  state-0
 $:
   search-subscriptions=(map query search-state)
+  peers=(set @p)
+  alive-peers=(set @p)
 ==
 +$  poke
   $%
-    [%search query=tape]
+    :: [%search query=tape]
+    [%liveness-check ~]
+    [%add-peers (set @p)]
+    :: [%ping ~]
+    :: [%pong ~]
   ==
 ++  rank-results
   |=  search-results=(map term (unit (list search-result)))
@@ -39,6 +45,7 @@ $:
     ^-  task:iris
     [%request [%'GET' (crip (url.engine (trip query))) ~ ~] *outbound-config:iris]
   [%pass ~[%search-result query engine-name] %arvo %i req]
+  ++  liveness-interval  ~s30
 --
 
 =/  state  *state-0
@@ -62,7 +69,6 @@ $:
   search-results.search-state
 =*  sink-for-query
   |=  =query
-  ~&  (~(get by search-subscriptions.state) query)
   [(current-engines query) (search-results query)]
 =*  sink
   |=  =query
@@ -72,7 +78,9 @@ $:
 %-  agent:dbug
 |_  =bowl:gall
 +*  this  .
-++  on-init   `..on-init
+    liveness-behn-card  [%pass /check-liveness %arvo %b %wait (add now.bowl liveness-interval)]
+++  on-init
+  [~[liveness-behn-card] this]
 ++  on-save   !>(state)
 ++  on-load   
   |=  =vase
@@ -84,7 +92,18 @@ $:
 ++  on-poke   
   |=  =cage
   ^-  (quip card:agent:gall _this)
-  `this
+  ?>  ?=(%noun -.cage)
+  =/  poke  !<(poke +.cage)
+  ?-  -.poke
+      %liveness-check
+    [~[liveness-behn-card] this]
+      %add-peers
+    `this(peers.state (~(uni in peers.state) +.poke))
+  ==
+
+  ::     %ping
+    
+
 
 ++  on-watch  
   |=  =path 
@@ -104,13 +123,22 @@ $:
   =.  search-subscriptions.state
     (~(put by search-subscriptions.state) query subscription)
   [~[flush:(sink query)] this]
+    [%ping ~]
+  ~&  path
+  :-
+  :~
+    [%give %fact ~ %noun !>(%pong)]
+    [%give %kick ~ ~]
+  ==
+  this
+  
   ==
 
 :: This was not tested because it requires waiting 12 hours.
 ++  on-leave
   |=  =path
-  ?+  path  !!
-    [%search query ~]
+  ?+  path  `this
+      [%search query ~]
     =/  query  +<.path
     ~&  path
     =/  search-state  (~(got by search-subscriptions.state) query)
@@ -125,7 +153,17 @@ $:
 ++  on-peek   
   |=  path
   ~
-++  on-agent  |=([wire sign:agent:gall] !!)
+++  on-agent  
+  |=  [=wire =sign:agent:gall]
+  ?+  wire  `this
+    [%alive ~]
+  ?+  -.sign  `this
+    %fact
+  ~&  "{<src.bowl>} is alive"
+  =.  alive-peers.state  (~(put in alive-peers.state) src.bowl)
+  `this
+  ==
+  ==
 ++  on-arvo
   |=  [=wire =sign-arvo] 
   ^-  (quip card:agent:gall _this)
@@ -149,6 +187,18 @@ $:
   =^  card  sink  (sync:sink (sink-for-query query))
   ~&  (current-engines query)
   [~[card] this]
+    [%check-liveness ~]
+  =/  checks
+    %+  turn  ~(tap in peers.state)
+    |=  peer=@p
+    [%pass /alive %agent [peer %seax] %watch /ping]
+  =.  peers.state  alive-peers.state
+  =.  alive-peers.state  *(set @p)
+  =/  timer
+    liveness-behn-card
+  :-
+  [timer checks]
+  this
   ==
 ++  on-fail
   |=  [term =tang] 
