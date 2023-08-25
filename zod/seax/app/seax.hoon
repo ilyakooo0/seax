@@ -16,11 +16,9 @@ $:
 ==
 +$  poke
   $%
-    :: [%search query=tape]
     [%liveness-check ~]
+    [%gossip ~]
     [%add-peers (set @p)]
-    :: [%ping ~]
-    :: [%pong ~]
   ==
 ++  rank-results
   |=  search-results=(map term (unit (list search-result)))
@@ -59,7 +57,7 @@ $:
     (~(get by search-results:(~(got by search-subscriptions.state) query)) engine)
   ?~  results  %loading
   ?~  +.results  %failed
-  ?~  +.+.results  %failed
+  ?~  +>.results  %failed
   %completed
 =*  search-results
   |=  =query
@@ -100,10 +98,6 @@ $:
       %add-peers
     `this(peers.state (~(uni in peers.state) +.poke))
   ==
-
-  ::     %ping
-    
-
 
 ++  on-watch  
   |=  =path 

@@ -149,42 +149,6 @@ main =
         }
 
 
-debug : (String -> String) -> D.Deconstructor a -> D.Deconstructor a
-debug log f noun =
-    case f noun of
-        Just x ->
-            Just x
-
-        Nothing ->
-            let
-                _ =
-                    log (prettyNoun noun)
-            in
-            Nothing
-
-
-prettyNoun : Noun -> String
-prettyNoun noun =
-    let
-        go isRhs n =
-            case n of
-                Atom a ->
-                    if isSig a then
-                        "~"
-
-                    else
-                        "@"
-
-                Cell ( lhs, rhs ) ->
-                    if isRhs then
-                        go False lhs ++ " " ++ go True rhs
-
-                    else
-                        "[" ++ go False lhs ++ " " ++ go True rhs ++ "]"
-    in
-    go False noun
-
-
 view : Model -> Element Msg
 view model =
     case model.initiatedSearch of
@@ -194,22 +158,18 @@ view model =
                 , searchView model
                 ]
 
-        Just query ->
+        Just _ ->
             column [ width fill, spacing 16 ]
                 [ row [ spacing 16, width fill ]
                     [ searchView model |> el [ padding 8 ]
                     , model.engines
+                        |> List.filter (\( _, state ) -> state /= Failed)
                         |> List.map
                             (\( name, state ) ->
-                                ( name
-                                , text ("%" ++ name)
+                                text ("%" ++ name)
                                     |> el
-                                        ([ Font.size 43
+                                        ([ Font.size 16
                                          , Font.bold
-                                         , Html.Attributes.style "max-width" "300px"
-                                            |> htmlAttribute
-
-                                         -- , clip
                                          ]
                                             ++ (if Set.isEmpty model.selectedEngines then
                                                     []
@@ -223,8 +183,7 @@ view model =
                                                )
                                             ++ (case state of
                                                     Loading ->
-                                                        [ Html.Attributes.class "bobbing" |> htmlAttribute
-                                                        , Font.color (rgb 0.8 0.8 0.8)
+                                                        [ Html.Attributes.class "shimmer" |> htmlAttribute
                                                         ]
 
                                                     Completed ->
@@ -236,25 +195,14 @@ view model =
                                                         ]
 
                                                     Failed ->
-                                                        [ Html.Attributes.class "hidden-engine" |> htmlAttribute
-                                                        , Html.Attributes.style "max-width" "0px" |> htmlAttribute
-                                                        , Html.Attributes.style "top" "-100px"
-                                                            |> htmlAttribute
-                                                        , Html.Attributes.style "margin" "0"
-                                                            |> htmlAttribute
-                                                        , Font.color (rgb 0.8 0.8 0.8)
-                                                        , Html.Attributes.class "bobbing" |> htmlAttribute
-                                                        ]
+                                                        []
                                                )
                                         )
-                                )
                             )
-                        |> Keyed.row
-                            [ spacing 16
-                            , clipX
-                            , scrollbarX
+                        |> wrappedRow
+                            [ spacing 8
                             , width fill
-                            , height (px 62)
+                            , padding 16
                             ]
                     ]
                 , Keyed.column [ width fill, padding 8 ]
