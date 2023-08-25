@@ -112,6 +112,7 @@ main =
                                 , Font.typeface "Segoe UI Emoji"
                                 , Font.typeface "Segoe UI Symbol"
                                 ]
+                            , clipX
                             ]
                     ]
                 }
@@ -159,8 +160,8 @@ view model =
                 ]
 
         Just _ ->
-            column [ width fill, spacing 16 ]
-                [ row [ spacing 16, width fill ]
+            column [ width (minimum 0 fill), spacing 16 ]
+                [ row [ spacing 16, width (minimum 0 fill) ]
                     [ searchView model |> el [ padding 8 ]
                     , model.engines
                         |> List.filter (\( _, state ) -> state /= Failed)
@@ -205,7 +206,7 @@ view model =
                             , padding 16
                             ]
                     ]
-                , Keyed.column [ width fill, padding 8 ]
+                , Keyed.column [ width (minimum 0 fill), padding 8 ]
                     (model.searchResults
                         |> List.filter
                             (\{ engines } ->
@@ -220,7 +221,7 @@ view model =
                                 ( link
                                 , column
                                     [ spacing 4
-                                    , width fill
+                                    , width (minimum 0 fill)
                                     , pointer
                                     , alpha
                                         (Animator.move
@@ -250,17 +251,14 @@ view model =
                                         |> htmlAttribute
                                     , Html.Attributes.style "position" "absolute" |> htmlAttribute
                                     ]
-                                    [ [ text title ]
-                                        |> paragraph
+                                    [ text title
+                                        |> el
                                             [ Font.size 16
                                             , width fill
-                                            , Html.Attributes.style "text-overflow" "ellipsis" |> htmlAttribute
                                             ]
-                                    , [ text link ]
-                                        |> paragraph
+                                    , text link
+                                        |> el
                                             [ Font.size 12
-                                            , Html.Attributes.style "text-overflow" "ellipsis" |> htmlAttribute
-                                            , width fill
                                             , Font.color (rgb 0.7 0.7 0.7)
                                             ]
                                     ]
