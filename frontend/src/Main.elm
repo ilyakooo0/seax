@@ -160,51 +160,53 @@ view model =
                 ]
 
         Just _ ->
-            column [ width (minimum 0 fill), spacing 16 ]
-                [ row [ spacing 16, width (minimum 0 fill) ]
-                    [ searchView model |> el [ padding 8 ]
-                    , model.engines
-                        |> List.filter (\( _, state ) -> state /= Failed)
-                        |> List.map
-                            (\( name, state ) ->
-                                text ("%" ++ name)
-                                    |> el
-                                        ([ Font.size 16
-                                         , Font.bold
-                                         ]
-                                            ++ (if Set.isEmpty model.selectedEngines then
-                                                    []
-
-                                                else if Set.member name model.selectedEngines then
-                                                    []
-
-                                                else
-                                                    [ Font.color (rgb 0.8 0.8 0.8)
-                                                    ]
-                                               )
-                                            ++ (case state of
-                                                    Loading ->
-                                                        [ Html.Attributes.class "shimmer" |> htmlAttribute
-                                                        ]
-
-                                                    Completed ->
-                                                        [ mouseOver
-                                                            [ Font.color (rgb 0.6 0.6 0.6)
-                                                            ]
-                                                        , pointer
-                                                        , Events.onClick (ToggleSearchEngine name)
-                                                        ]
-
-                                                    Failed ->
+            column [ width fill, spacing 16 ]
+                [ column [ spacing 16, width (minimum 0 fill), padding 8 ]
+                    [ searchView model |> el []
+                    , row [ spacing 8, paddingEach { top = 16, bottom = 16, left = 0, right = 0 } ]
+                        [ text "Sources: "
+                        , model.engines
+                            |> List.filter (\( _, state ) -> state /= Failed)
+                            |> List.map
+                                (\( name, state ) ->
+                                    text ("%" ++ name)
+                                        |> el
+                                            (Font.bold
+                                                :: (if Set.isEmpty model.selectedEngines then
                                                         []
-                                               )
-                                        )
-                            )
-                        |> wrappedRow
-                            [ spacing 8
-                            , width fill
-                            , padding 16
-                            ]
+
+                                                    else if Set.member name model.selectedEngines then
+                                                        []
+
+                                                    else
+                                                        [ Font.color (rgb 0.8 0.8 0.8)
+                                                        ]
+                                                   )
+                                                ++ (case state of
+                                                        Loading ->
+                                                            [ Html.Attributes.class "shimmer" |> htmlAttribute
+                                                            ]
+
+                                                        Completed ->
+                                                            [ mouseOver
+                                                                [ Font.color (rgb 0.6 0.6 0.6)
+                                                                ]
+                                                            , pointer
+                                                            , Events.onClick (ToggleSearchEngine name)
+                                                            ]
+
+                                                        Failed ->
+                                                            []
+                                                   )
+                                            )
+                                )
+                            |> wrappedRow
+                                [ spacing 8
+                                , width fill
+
+                                -- , padding 16
+                                ]
+                        ]
                     ]
                 , Keyed.column [ width (minimum 0 fill), padding 8 ]
                     (model.searchResults
