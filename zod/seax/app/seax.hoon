@@ -11,13 +11,11 @@ $:
 +$  state-0
 $:
   search-subscriptions=(map query search-state)
-  peers=(set @p)
+  peers=_(silt ~[~zod ~racfer-hattes])
   alive-peers=(set @p)
 ==
 +$  poke
   $%
-    [%liveness-check ~]
-    [%gossip ~]
     [%add-peers (set @p)]
   ==
 ++  rank-results
@@ -44,6 +42,7 @@ $:
     [%request [%'GET' (crip (url.engine (trip query))) ~ ~] *outbound-config:iris]
   [%pass ~[%search-result query engine-name] %arvo %i req]
   ++  liveness-interval  ~s30
+  ++  gossip-interval  ~s30
 --
 
 =/  state  *state-0
@@ -77,8 +76,9 @@ $:
 |_  =bowl:gall
 +*  this  .
     liveness-behn-card  [%pass /check-liveness %arvo %b %wait (add now.bowl liveness-interval)]
+    gossip-behn-card  [%pass /gossip %arvo %b %wait (add now.bowl gossip-interval)]
 ++  on-init
-  [~[liveness-behn-card] this]
+  [~[liveness-behn-card gossip-behn-card] this]
 ++  on-save   !>(state)
 ++  on-load   
   |=  =vase
@@ -88,15 +88,13 @@ $:
   state  state
   ==
 ++  on-poke   
-  |=  =cage
+  |=  [* * pk=*]
   ^-  (quip card:agent:gall _this)
-  ?>  ?=(%noun -.cage)
-  =/  poke  !<(poke +.cage)
+  =/  poke  (poke pk)
+  ~&  poke
   ?-  -.poke
-      %liveness-check
-    [~[liveness-behn-card] this]
       %add-peers
-    `this(peers.state (~(uni in peers.state) +.poke))
+    [~ this(peers.state (~(put in (~(uni in peers.state) +.poke)) src.bowl))]
   ==
 
 ++  on-watch  
@@ -192,6 +190,13 @@ $:
     liveness-behn-card
   :-
   [timer checks]
+  this
+    [%gossip ~]
+  :-
+  :-  gossip-behn-card
+  %+  turn  ~(tap in peers.state)
+  |=  peer=@p
+  [%pass / %agent [peer %seax] %poke %noun !>([%add-peers peers.state])]
   this
   ==
 ++  on-fail

@@ -1,0 +1,8 @@
+frontend/elm-stuff
+frontend/elm.js
+zod/base
+zod/.bin
+zod/.http.ports
+zod/.run
+zod/.urb
+zod/.vere.lock
