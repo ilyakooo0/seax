@@ -1,6 +1,6 @@
 /-  *seax
-/+  dbug, engines, rank, sink
-
+/-  diary
+/+  dbug, engines, rank, sink, strandio
 |%
 +$  query  cord
 +$  search-state
@@ -10,6 +10,7 @@ $:
 ==
 +$  state-0
 $:
+  notes=shelf:diary
   search-subscriptions=(map query search-state)
   peers=_(silt ~[~zod ~racfer-hattes])
   alive-peers=(set @p)
@@ -17,6 +18,7 @@ $:
 +$  poke
   $%
     [%add-peers (set @p)]
+    [%get-notes ~]
   ==
 ++  rank-results
   |=  search-results=(map term (unit (list search-result)))
@@ -88,15 +90,16 @@ $:
   state  state
   ==
 ++  on-poke   
-  |=  [* * pk=*]
+  |=  [=mark =vase]
   ^-  (quip card:agent:gall _this)
-  =/  poke  (poke pk)
+  =/  poke  !<(poke vase)
   ~&  poke
   ?-  -.poke
-      %add-peers
-    [~ this(peers.state (~(put in (~(uni in peers.state) +.poke)) src.bowl))]
+      %add-peers  
+        [~ this(peers.state (~(put in (~(uni in peers.state) +.poke)) src.bowl))]
+      %get-notes  
+        `this(notes.state .^(shelf:diary %gx /(scot %p our.bowl)/diary/(scot %da now.bowl)/shelf/noun))
   ==
-
 ++  on-watch  
   |=  =path 
   ?+  path  !!
