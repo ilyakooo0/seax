@@ -22,6 +22,10 @@ import Ur.Jam exposing (isSig)
 import Ur.Run
 import Ur.Sub
 import Ur.Types exposing (Noun(..))
+import Html.String
+import List
+import Css
+import Html.Styled.Attributes exposing (css)
 
 
 url : String
@@ -61,7 +65,6 @@ type alias SearchResult =
     , engines : Set String
     }
 
-
 type Msg
     = Noop
     | GotShipName String
@@ -99,18 +102,9 @@ main =
                 , body =
                     [ view model
                         |> layout
-                            [ Font.family
-                                [ Font.typeface "system-ui"
-                                , Font.typeface "-apple-system"
-                                , Font.typeface "BlinkMacSystemFont"
-                                , Font.typeface "Segoe UI"
-                                , Font.typeface "Roboto"
-                                , Font.typeface "Helvetica"
-                                , Font.typeface "Arial"
-                                , Font.sansSerif
+                            [ Font.family 
+                                [ Font.typeface "Inter"
                                 , Font.typeface "Apple Color Emoji"
-                                , Font.typeface "Segoe UI Emoji"
-                                , Font.typeface "Segoe UI Symbol"
                                 ]
                             , clipX
                             ]
@@ -150,19 +144,27 @@ main =
         }
 
 
+logoView : List (Attribute Msg) -> Element Msg
+logoView attributes =
+    Element.image ( List.append [ Html.Attributes.id "tilt" |> htmlAttribute ] attributes )
+        { src = "assets/img/logo.png", description = "The logo" }
+
 view : Model -> Element Msg
 view model =
     case model.initiatedSearch of
         Nothing ->
             column [ centerX, centerY, padding 8, spacing 16 ]
-                [ el [ centerX, Font.size 67, Font.heavy ] (text "%seax")
-                , searchView model
+                [ 
+                    -- el [ centerX, Font.size 67, Font.heavy] (text "%seax") ,
+                    -- Element.image [ centerX, width (px 510), height (px 161), Html.Attributes.id "tilt" |> htmlAttribute ] { src = "assets/img/logo.png", description = "The logo" },
+                    logoView [centerX, width (px 510), height (px 161) ],
+                    searchView model
                 ]
 
         Just _ ->
             column [ width fill, spacing 16 ]
-                [ column [ spacing 16, width (minimum 0 fill), padding 8 ]
-                    [ searchView model |> el []
+                [ column [ spacing 16, width (minimum 0 fill), padding 8]
+                    [ row [] [ logoView [height (px 40)], searchView model |> el [] ]
                     , row [ spacing 8, paddingEach { top = 16, bottom = 16, left = 0, right = 0 } ]
                         [ text "Sources: "
                         , model.engines
@@ -273,7 +275,7 @@ view model =
 searchView : { a | search : String } -> Element Msg
 searchView model =
     row [ spacing 8 ]
-        [ Input.text [ width (px 250) ]
+        [ Input.text [ Html.Attributes.class "shadow" |> htmlAttribute, width (px 400)]
             { onChange = UpdateSearch
             , placeholder = Nothing
             , text = model.search
@@ -283,7 +285,8 @@ searchView model =
             { label =
                 text "search"
                     |> el
-                        [ Border.width 4
+                        [ Html.Attributes.class "button" |> htmlAttribute
+                        , Border.width 4
                         , padding 4
                         , Font.size 29
                         , Font.bold
