@@ -168,6 +168,9 @@ view model =
                 [ column [ spacing 16, width (minimum 0 fill), padding 8]
                     [ row [] [ logoView [height (px 40)], searchView model |> el [] ]
                     , row [ spacing 8, paddingEach { top = 16, bottom = 16, left = 0, right = 0 } ]
+                    (if List.isEmpty model.engines then
+                        []
+                    else
                         [ text "Sources: "
                         , model.engines
                             |> List.filter (\( _, state ) -> state /= Failed)
@@ -209,6 +212,7 @@ view model =
                                 , width fill
                                 ]
                         ]
+                        )
                     ]
                 , Element.html (Html.hr [Html.Attributes.style "width" "95%"] [])
                 , Keyed.column [ width (minimum 0 fill), padding 8 ]
