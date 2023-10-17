@@ -29,6 +29,8 @@ import Html.String
 import List
 import Css
 import Html.Styled.Attributes exposing (css)
+import Html.Parser
+import String.Extra exposing (stripTags)
 
 
 url : String
@@ -256,10 +258,9 @@ view model =
                                     , Html.Attributes.style "padding" "0.5em" |> htmlAttribute
                                     , Html.Attributes.class "result" |> htmlAttribute
                                     ]
-                                    [ text title
+                                    [ text (stripTags title)
                                         |> el
                                             [ Font.size 16
-                                            , width fill
                                             ]
                                     , text link
                                         |> el
