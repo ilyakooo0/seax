@@ -11,6 +11,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
 import Html.Attributes
+import Html.String
+import Html.Styled.Attributes exposing (css)
+import Html exposing (Html, hr)
 import Json.Decode as JD
 import List.Extra
 import Set exposing (Set)
@@ -102,12 +105,12 @@ main =
                 , body =
                     [ view model
                         |> layout
-                            [ Font.family 
-                                [ Font.typeface "Inter"
+                        [ Font.family
+                                [ Font.typeface "monospace"
                                 , Font.typeface "Apple Color Emoji"
                                 ]
                             , clipX
-                            ]
+                        ]
                     ]
                 }
         , subscriptions = \model -> Animator.toSubscription Tick model (animator model)
@@ -146,19 +149,16 @@ main =
 
 logoView : List (Attribute Msg) -> Element Msg
 logoView attributes =
-    Element.image ( List.append [ Html.Attributes.id "tilt" |> htmlAttribute ] attributes )
-        { src = "assets/img/logo.png", description = "The logo" }
+    Element.image (List.append [ Html.Attributes.id "tilt" |> htmlAttribute ] attributes)
+        { src = "assets/img/logo.png", description = "%seax logo" }
 
 view : Model -> Element Msg
 view model =
     case model.initiatedSearch of
         Nothing ->
             column [ centerX, centerY, padding 8, spacing 16 ]
-                [ 
-                    -- el [ centerX, Font.size 67, Font.heavy] (text "%seax") ,
-                    -- Element.image [ centerX, width (px 510), height (px 161), Html.Attributes.id "tilt" |> htmlAttribute ] { src = "assets/img/logo.png", description = "The logo" },
-                    logoView [centerX, width (px 510), height (px 161) ],
-                    searchView model
+                [ logoView [ centerX, width (px 510), height (px 161) ]
+                , searchView model
                 ]
 
         Just _ ->
@@ -205,11 +205,10 @@ view model =
                             |> wrappedRow
                                 [ spacing 8
                                 , width fill
-
-                                -- , padding 16
                                 ]
                         ]
                     ]
+                , Element.html (Html.hr [Html.Attributes.style "width" "95%"] [])
                 , Keyed.column [ width (minimum 0 fill), padding 8 ]
                     (model.searchResults
                         |> List.filter
@@ -253,7 +252,9 @@ view model =
                                             ++ "px"
                                         )
                                         |> htmlAttribute
-                                    , Html.Attributes.style "position" "absolute" |> htmlAttribute
+                                    , Html.Attributes.style "margin-bottom" "1em" |> htmlAttribute
+                                    , Html.Attributes.style "padding" "0.5em" |> htmlAttribute
+                                    , Html.Attributes.class "result" |> htmlAttribute
                                     ]
                                     [ text title
                                         |> el
@@ -269,6 +270,7 @@ view model =
                                 )
                             )
                     )
+                , Element.html (Html.hr [Html.Attributes.style "width" "95%"] [])
                 ]
 
 
@@ -285,23 +287,14 @@ searchView model =
             { label =
                 text "search"
                     |> el
-                        [ Html.Attributes.class "button" |> htmlAttribute
-                        , Border.width 4
-                        , padding 4
+                        [ Html.Attributes.class "search" |> htmlAttribute
+                        , Border.width 2
+                        , padding 6
                         , Font.size 29
-                        , Font.bold
-                        , Border.color (rgb 0 0 0)
-                        , Background.color (rgb 0 0 0)
-                        , Font.color (rgb 1 1 1)
-                        , mouseOver
-                            [ Font.color (rgb 0 0 0)
-                            , Background.color (rgb 1 1 1)
-                            ]
                         ]
             , onPress = Just (Search model.search)
             }
         ]
-
 
 update : Msg -> Model -> ( Model, Ur.Cmd.Cmd Msg )
 update msg model =

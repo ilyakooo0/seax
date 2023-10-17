@@ -7,7 +7,6 @@
 }
 
 .button {
-  background-color: #ff7600;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -22,6 +21,16 @@
 }
 
 .shadow {
-  box-shadow: 0 2px 2px #888888;
+  shadow: 0 2px 2px #888888;
 }
 
+.result {
+}
+
+.result:hover {
+    text-decoration: underline;
+}
+
+.search:hover {
+    text-decoration: underline; 
+}
