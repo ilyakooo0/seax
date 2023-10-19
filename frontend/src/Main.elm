@@ -107,10 +107,15 @@ main =
                 , body =
                     [ view model
                         |> layout
-                        [ Font.family
-                                [ Font.typeface "monospace"
-                                , Font.typeface "Apple Color Emoji"
-                                ]
+                            [ Font.family
+                                [ Font.typeface "system-ui"
+                                , Font.typeface "-apple-system"
+                                , Font.typeface "BlinkMacSystemFont"
+                                , Font.typeface "Segoe UI"
+                                , Font.typeface "Roboto"
+                                , Font.typeface "Helvetica"
+                                , Font.typeface "Arial"
+                                , Font.sansSerif
                             , clipX
                         ]
                     ]
