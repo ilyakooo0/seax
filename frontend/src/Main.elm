@@ -11,6 +11,9 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
 import Html.Attributes
+import Html.String
+import Html.Styled.Attributes exposing (css)
+import Html exposing (Html, hr)
 import Json.Decode as JD
 import List.Extra
 import Set exposing (Set)
@@ -22,6 +25,11 @@ import Ur.Jam exposing (isSig)
 import Ur.Run
 import Ur.Sub
 import Ur.Types exposing (Noun(..))
+import Html.String
+import List
+import Html.Styled.Attributes exposing (css)
+import Html.Parser
+import String.Extra exposing (stripTags)
 
 
 url : String
@@ -61,7 +69,6 @@ type alias SearchResult =
     , engines : Set String
     }
 
-
 type Msg
     = Noop
     | GotShipName String
@@ -100,7 +107,8 @@ main =
                     [ view model
                         |> layout
                             [ Font.family
-                                [ Font.typeface "system-ui"
+                                [ Font.typeface "monospace"
+                                , Font.typeface "system-ui"
                                 , Font.typeface "-apple-system"
                                 , Font.typeface "BlinkMacSystemFont"
                                 , Font.typeface "Segoe UI"
@@ -108,12 +116,9 @@ main =
                                 , Font.typeface "Helvetica"
                                 , Font.typeface "Arial"
                                 , Font.sansSerif
-                                , Font.typeface "Apple Color Emoji"
-                                , Font.typeface "Segoe UI Emoji"
-                                , Font.typeface "Segoe UI Symbol"
                                 ]
                             , clipX
-                            ]
+                        ]
                     ]
                 }
         , subscriptions = \model -> Animator.toSubscription Tick model (animator model)
@@ -150,20 +155,51 @@ main =
         }
 
 
+logoView : List (Attribute Msg) -> Element Msg
+logoView attributes =
+    Element.image (List.append [ Html.Attributes.id "tilt" |> htmlAttribute ] attributes)
+        { src = "assets/img/logo.png", description = "%seax logo" }
+
+noSearchResultsView : Element Msg
+noSearchResultsView = Element.el
+        [ Html.Attributes.style "padding" "1em" |> htmlAttribute
+        , width (px 500)
+        , Font.size 15
+        , Html.Attributes.class "wavy" |> htmlAttribute
+        ]
+        (Element.text """No results found... :) 
+We'll try and find you something. 
+Just come back later.""")
+
+subtleLink : String -> String -> Element Msg
+subtleLink text href =
+    Element.el
+        [ Font.size 15
+        , pointer
+        , mouseOver
+            [ Font.color (rgb 0.7 0.7 0.7)
+            ]
+        ]
+        (Element.html (Html.a [ Html.Attributes.href href ] [ Html.text text ]))
+
+
 view : Model -> Element Msg
 view model =
     case model.initiatedSearch of
         Nothing ->
             column [ centerX, centerY, padding 8, spacing 16 ]
-                [ el [ centerX, Font.size 67, Font.heavy ] (text "%seax")
+                [ logoView [ centerX, width (px 510), height (px 161) ]
                 , searchView model
                 ]
 
         Just _ ->
             column [ width fill, spacing 16 ]
-                [ column [ spacing 16, width (minimum 0 fill), padding 8 ]
-                    [ searchView model |> el []
+                [ column [ spacing 16, width (minimum 0 fill), padding 8]
+                    [ row [] [ logoView [height (px 40)], searchView model |> el [] ]
                     , row [ spacing 8, paddingEach { top = 16, bottom = 16, left = 0, right = 0 } ]
+                    (if List.isEmpty model.engines then
+                        []
+                    else
                         [ text "Sources: "
                         , model.engines
                             |> List.filter (\( _, state ) -> state /= Failed)
@@ -203,12 +239,14 @@ view model =
                             |> wrappedRow
                                 [ spacing 8
                                 , width fill
-
-                                -- , padding 16
                                 ]
                         ]
+                        )
                     ]
-                , Keyed.column [ width (minimum 0 fill), padding 8 ]
+                , (if List.isEmpty model.searchResults then
+                    noSearchResultsView
+                else
+                Keyed.column [ width (minimum 0 fill), padding 8 ]
                     (model.searchResults
                         |> List.filter
                             (\{ engines } ->
@@ -251,12 +289,13 @@ view model =
                                             ++ "px"
                                         )
                                         |> htmlAttribute
-                                    , Html.Attributes.style "position" "absolute" |> htmlAttribute
+                                    , Html.Attributes.style "margin-bottom" "1em" |> htmlAttribute
+                                    , Html.Attributes.style "padding" "0.5em" |> htmlAttribute
+                                    , Html.Attributes.class "result" |> htmlAttribute
                                     ]
-                                    [ text title
+                                    [ text (stripTags title)
                                         |> el
                                             [ Font.size 16
-                                            , width fill
                                             ]
                                     , text link
                                         |> el
@@ -266,14 +305,19 @@ view model =
                                     ]
                                 )
                             )
-                    )
+                    ))
+                , Element.html (Html.hr [Html.Attributes.style "width" "95%"] [])
+                , row [ centerX, padding 10, spacing 10]
+                [ subtleLink "[About]" "https://vagos.github.io/seax"
+                , subtleLink "[Code]" "https://github.com/ilyakooo0/seax"
                 ]
+            ]
 
 
 searchView : { a | search : String } -> Element Msg
 searchView model =
     row [ spacing 8 ]
-        [ Input.text [ width (px 250) ]
+        [ Input.text [ Html.Attributes.class "shadow" |> htmlAttribute, width (px 400)]
             { onChange = UpdateSearch
             , placeholder = Nothing
             , text = model.search
@@ -283,22 +327,14 @@ searchView model =
             { label =
                 text "search"
                     |> el
-                        [ Border.width 4
-                        , padding 4
+                        [ Html.Attributes.class "search" |> htmlAttribute
+                        , Border.width 2
+                        , padding 6
                         , Font.size 29
-                        , Font.bold
-                        , Border.color (rgb 0 0 0)
-                        , Background.color (rgb 0 0 0)
-                        , Font.color (rgb 1 1 1)
-                        , mouseOver
-                            [ Font.color (rgb 0 0 0)
-                            , Background.color (rgb 1 1 1)
-                            ]
                         ]
             , onPress = Just (Search model.search)
             }
         ]
-
 
 update : Msg -> Model -> ( Model, Ur.Cmd.Cmd Msg )
 update msg model =
