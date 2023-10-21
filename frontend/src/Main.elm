@@ -171,16 +171,24 @@ noSearchResultsView = Element.el
 We'll try and find you something. 
 Just come back later.""")
 
-subtleLink : String -> String -> Element Msg
-subtleLink text href =
+subtleLinkView : String -> String -> Element Msg
+subtleLinkView text href =
     Element.el
         [ Font.size 15
         , pointer
         , mouseOver
-            [ Font.color (rgb 0.7 0.7 0.7)
+            [ Font.color (rgb 0.1 0.7 0.7)
             ]
         ]
         (Element.html (Html.a [ Html.Attributes.href href ] [ Html.text text ]))
+
+aboutView : Element Msg
+aboutView = row [ centerX, padding 10, spacing 10]
+                [ subtleLinkView "[About]" "https://vagos.github.io/seax"
+                , subtleLinkView "[Code]" "https://github.com/ilyakooo0/seax"
+                ]
+
+
 
 
 view : Model -> Element Msg
@@ -190,6 +198,7 @@ view model =
             column [ centerX, centerY, padding 8, spacing 16 ]
                 [ logoView [ centerX, width (px 510), height (px 161) ]
                 , searchView model
+                , aboutView
                 ]
 
         Just _ ->
@@ -307,17 +316,34 @@ view model =
                             )
                     ))
                 , Element.html (Html.hr [Html.Attributes.style "width" "95%"] [])
-                , row [ centerX, padding 10, spacing 10]
-                [ subtleLink "[About]" "https://vagos.github.io/seax"
-                , subtleLink "[Code]" "https://github.com/ilyakooo0/seax"
+                , aboutView
                 ]
-            ]
+
+
+onEnter : msg -> Element.Attribute msg
+onEnter msg =
+    Element.htmlAttribute
+        (Html.Events.on "keyup"
+            (JD.field "key" JD.string
+                |> JD.andThen
+                    (\key ->
+                        if key == "Enter" then
+                            JD.succeed msg
+
+                        else
+                            JD.fail "Not the enter key"
+                    )
+            )
+        )
 
 
 searchView : { a | search : String } -> Element Msg
 searchView model =
     row [ spacing 8 ]
-        [ Input.text [ Html.Attributes.class "shadow" |> htmlAttribute, width (px 400)]
+        [ Input.text 
+        [ Html.Attributes.class "shadow" |> htmlAttribute, width (px 400)
+        , onEnter (Search model.search)
+        ]
             { onChange = UpdateSearch
             , placeholder = Nothing
             , text = model.search
