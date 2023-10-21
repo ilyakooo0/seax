@@ -10,13 +10,19 @@ import Element.Events as Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
 import Element.Keyed as Keyed
+import Html exposing (Html, hr)
 import Html.Attributes
+import Html.Parser
+import Html.String
 import Html.String
 import Html.Styled.Attributes exposing (css)
-import Html exposing (Html, hr)
+import Html.Styled.Attributes exposing (css)
+import Html.Events exposing (on)
 import Json.Decode as JD
+import List
 import List.Extra
 import Set exposing (Set)
+import String.Extra exposing (stripTags)
 import Time exposing (Posix)
 import Ur
 import Ur.Cmd
@@ -25,12 +31,6 @@ import Ur.Jam exposing (isSig)
 import Ur.Run
 import Ur.Sub
 import Ur.Types exposing (Noun(..))
-import Html.String
-import List
-import Html.Styled.Attributes exposing (css)
-import Html.Parser
-import String.Extra exposing (stripTags)
-
 
 url : String
 url =
