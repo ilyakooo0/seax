@@ -34,6 +34,7 @@ import Ur.Types exposing (Noun(..))
 import Url
 import ElmEscapeHtml
 import Json.Encode
+import Hash
 
 url : String
 url =
@@ -192,6 +193,18 @@ aboutView = row [ centerX, padding 10, spacing 10]
                 ]
 
 
+titleEmoji : String -> String
+titleEmoji title = 
+    let maxUnicode = 0x1F3F0
+        minUnicode = 0x1F300
+    in title |> Hash.fromString 
+             |> Hash.toString 
+             |> String.toInt 
+             |> Maybe.withDefault 0 
+             |> (\x -> ((modBy (maxUnicode - minUnicode) x) + minUnicode))
+             |> Char.fromCode
+             |> String.fromChar 
+             |> (\x -> x ++ " ")
 
 
 view : Model -> Element Msg
@@ -309,7 +322,14 @@ view model =
                                         (Html.a
                                             [ Html.Attributes.href link
                                             , Html.Attributes.class "result-title" ]
-                                            [ Html.text (Maybe.withDefault "" (Url.percentDecode (ElmEscapeHtml.unescape (stripTags title)))) ]
+                                            [ Html.text
+                                            (Maybe.withDefault "" 
+                                            (Url.percentDecode 
+                                            (ElmEscapeHtml.unescape 
+                                            (stripTags 
+                                            ((titleEmoji title) ++ title)
+                                            ))))
+                                            ]
                                         )
                                        )
                                     , text link
