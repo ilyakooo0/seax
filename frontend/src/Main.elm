@@ -31,6 +31,9 @@ import Ur.Jam exposing (isSig)
 import Ur.Run
 import Ur.Sub
 import Ur.Types exposing (Noun(..))
+import Url
+import ElmEscapeHtml
+import Json.Encode
 
 url : String
 url =
@@ -292,7 +295,7 @@ view model =
                                                 |> Maybe.map Tuple.first
                                                 |> Maybe.withDefault (Animator.init 0)
                                             )
-                                            (\i -> toFloat i * 47 |> Animator.at)
+                                            (\i -> toFloat i * 0 |> Animator.at)
                                             |> String.fromFloat
                                          )
                                             ++ "px"
@@ -302,14 +305,17 @@ view model =
                                     , Html.Attributes.style "padding" "0.5em" |> htmlAttribute
                                     , Html.Attributes.class "result" |> htmlAttribute
                                     ]
-                                    [ text (stripTags title)
-                                        |> el
-                                            [ Font.size 16
-                                            ]
+                                    [ (Element.html 
+                                        (Html.a
+                                            [ Html.Attributes.href link
+                                            , Html.Attributes.class "result-title" ]
+                                            [ Html.text (Maybe.withDefault "" (Url.percentDecode (ElmEscapeHtml.unescape (stripTags title)))) ]
+                                        )
+                                       )
                                     , text link
                                         |> el
-                                            [ Font.size 12
-                                            , Font.color (rgb 0.7 0.7 0.7)
+                                            [ Font.color (rgb 0.7 0.7 0.7)
+                                            , Html.Attributes.class "result-link" |> htmlAttribute
                                             ]
                                     ]
                                 )

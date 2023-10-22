@@ -32,6 +32,7 @@
             "ianmackenzie/elm-units": "2.10.0",
             "jasonliang-dev/elm-heroicons": "2.0.0",
             "jxxcarlson/hex": "4.0.0",
+            "marcosh/elm-html-to-unicode": "1.0.4",
             "mdgriffith/elm-animator": "1.1.1",
             "mdgriffith/elm-ui": "1.1.8",
             "rtfeldman/elm-css": "18.0.0",
