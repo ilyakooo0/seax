@@ -321,7 +321,9 @@ view model =
                                     [ (Element.html 
                                         (Html.a
                                             [ Html.Attributes.href link
-                                            , Html.Attributes.class "result-title" ]
+                                            , Html.Attributes.class "result-title" 
+                                            , Html.Attributes.target "_blank"
+                                            ]
                                             [ Html.text
                                             (Maybe.withDefault "" 
                                             (Url.percentDecode 
