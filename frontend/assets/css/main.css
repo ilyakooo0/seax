@@ -49,3 +49,15 @@
     top: 0px;
   }
 }
+
+.result-link {
+  color: #000;
+  text-decoration: none;
+  font-size: 12px !important;
+}
+
+.result-title {
+  color: #000;
+  text-decoration: none;
+  font-size: 16px;
+}
