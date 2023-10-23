@@ -192,7 +192,6 @@ aboutView = row [ centerX, padding 10, spacing 10]
                 , subtleLinkView "[Code]" "https://github.com/ilyakooo0/seax"
                 ]
 
-
 titleEmoji : String -> String
 titleEmoji title = 
     let maxUnicode = 0x1F3F0
